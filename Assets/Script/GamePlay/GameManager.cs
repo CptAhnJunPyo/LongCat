@@ -52,12 +52,22 @@ public class GameManager : MonoBehaviour
         if (data != null)
             LoadLevelEditor(data);
         else
+        {
             LoadLevel(CurrentLevel);
+        }
+        
     }
-
-    public void ReloadLevel()
+    public bool ReloadLevel()
     {
-        LoadLevel(CurrentLevel);
+        if (GameData.TryConsumeLife()) {
+            LoadLevel(CurrentLevel);
+            GameData.Lives--;
+            return true;
+        }
+        else{
+            Debug.Log("Out of lives!");
+        }
+        return false;
     }
 
     public void LoadNextLevel()
@@ -67,16 +77,16 @@ public class GameManager : MonoBehaviour
 
     public void LoadLevel(int level)
     {
-        CurrentLevel = level;
-        OnLoadLevel?.Invoke(CurrentLevel);
-        Debug.Log($"level{CurrentLevel}");
-        string jsonData = Resources.Load<TextAsset>($"level{CurrentLevel}").text;
-        Debug.Log("Data: " + jsonData);
-        currentData = JsonConvert.DeserializeObject<int[,]>(jsonData);
-        levelHandler = new(currentData);
-        _lastMoveDirection = Direction.None;
-        GenerateMap(levelHandler.Map);
-        _gameState = GameState.WaitingForInput;
+            CurrentLevel = level;
+            OnLoadLevel?.Invoke(CurrentLevel);
+            Debug.Log($"level{CurrentLevel}");
+            string jsonData = Resources.Load<TextAsset>($"level{CurrentLevel}").text;
+            Debug.Log("Data: " + jsonData);
+            currentData = JsonConvert.DeserializeObject<int[,]>(jsonData);
+            levelHandler = new(currentData);
+            _lastMoveDirection = Direction.None;
+            GenerateMap(levelHandler.Map);
+            _gameState = GameState.WaitingForInput;
     }
 
     public void LoadLevelEditor(int[,] data)
