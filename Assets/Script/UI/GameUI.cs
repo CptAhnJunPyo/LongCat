@@ -10,7 +10,7 @@ public class GameUI : MonoBehaviour
     [SerializeField] private Transform LosePanel;
     [SerializeField] private CaptureEffect captureWinScreenController;
     [SerializeField] private FadeController fadeController;
-
+    [SerializeField] private OutOfLivesPanel outOfLivesPanel;
     [SerializeField] private ParticleSystem leftPartical;
     [SerializeField] private ParticleSystem rightPartical;
     private void Start()
@@ -18,7 +18,6 @@ public class GameUI : MonoBehaviour
         WinPanel.GetComponentInChildren<Button>().onClick.AddListener(()=> 
         {
             fadeController.FadeInOut(ClickBtnNextLevel);
-            
         });
         LosePanel.GetComponentInChildren<Button>().onClick.AddListener(() =>
         {
@@ -63,13 +62,21 @@ public class GameUI : MonoBehaviour
 
     public void ClickBtnNextLevel()
     {
-        GameManager.Instance.LoadNextLevel();
-        WinPanel.gameObject.SetActive(false);
-        captureWinScreenController.gameObject.SetActive(false);
-    }public void ClickBtnRetry()
+         GameManager.Instance.LoadNextLevel();
+         WinPanel.gameObject.SetActive(false);
+         captureWinScreenController.gameObject.SetActive(false);
+    }
+    public void ClickBtnRetry()
     {
-        GameManager.Instance.ReloadLevel();
-        LosePanel.gameObject.SetActive(false);
-        captureWinScreenController.gameObject.SetActive(false);
+        if (GameManager.Instance.ReloadLevel())
+        {
+            LosePanel.gameObject.SetActive(false);
+            captureWinScreenController.gameObject.SetActive(false);
+        }
+        else
+        {
+            var remain = GameData.TimeUntilNextLife();
+            outOfLivesPanel.Show(remain);
+        }
     }
 }
